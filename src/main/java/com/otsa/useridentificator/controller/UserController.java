@@ -6,9 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.ErrorResponseException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -44,7 +42,7 @@ public class UserController {
      * @param id user id
      * @return User
      */
-    @GetMapping("/user/{id}")
+    @GetMapping("/users/{id}")
     public ResponseEntity<User> getUser(@PathVariable("id") final Long id) {
         LOGGER.info("Get user with id " + id);
         Instant start = Instant.now();
@@ -68,7 +66,7 @@ public class UserController {
      * @param user the user to be registered
      * @return User
      */
-    @PostMapping("/user")
+    @PostMapping("/users")
     public ResponseEntity<User> postUser(@RequestBody User user){
         LOGGER.info("Register new user");
         Instant start = Instant.now();

@@ -36,13 +36,13 @@ public class UserControllerTest {
 
     @Test
     public void testGetUserNotFound() throws Exception {
-        mockMvc.perform(get("/user/201451"))
+        mockMvc.perform(get("/users/201451"))
                 .andExpect(status().isNotFound());
     }
 
     @Test
     public void testGetUser() throws Exception {
-        mockMvc.perform(get("/user/2"))
+        mockMvc.perform(get("/users/2"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("name", is("Sophie")))
                 .andExpect(jsonPath("birthdate", is("2001-01-01")))
@@ -58,7 +58,7 @@ public class UserControllerTest {
         User minorUser = new User("Phillipe", LocalDate.of(2015, 4, 23), "FR");
 
         mockMvc.perform(
-                    post("/user")
+                    post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(minorUser))
                 )
@@ -66,7 +66,7 @@ public class UserControllerTest {
 
         User notFrench = new User("Rodrigez", LocalDate.of(1995, 4, 23), "MQ");
         mockMvc.perform(
-                    post("/user")
+                    post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(notFrench))
                 )
@@ -81,7 +81,7 @@ public class UserControllerTest {
         objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
         mockMvc.perform(
-                    post("/user")
+                    post("/users")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(user))
                 )
