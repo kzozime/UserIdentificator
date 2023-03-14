@@ -1,6 +1,11 @@
 package com.otsa.useridentificator.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -15,7 +20,7 @@ public class User {
     Long id;
 
     @Column(name = "user_name", nullable = false)
-    private String name ;
+    private String name;
     @Column(nullable = false)
     private LocalDate birthdate;
     @Column(nullable = false)

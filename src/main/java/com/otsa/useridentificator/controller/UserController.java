@@ -1,22 +1,27 @@
 package com.otsa.useridentificator.controller;
 
+import com.otsa.useridentificator.dto.UserDto;
 import com.otsa.useridentificator.model.User;
 import com.otsa.useridentificator.service.UserService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.*;
-import java.util.Optional;
+import java.time.LocalDate;
+import java.time.Period;
+import java.util.List;
+
 
 @RestController
 public class UserController {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(UserController.class);
     @Autowired
     private UserService userService;
 
@@ -25,14 +30,8 @@ public class UserController {
      * @return a list of User
      */
     @GetMapping("/users")
-    public ResponseEntity<Iterable<User>> getUsers(){
-        LOGGER.info("Listing users :");
-        Instant start = Instant.now();
-
-        Iterable<User> users = userService.getUsers();
-
-        long processingTime = Duration.between(start, Instant.now()).toMillis();
-        LOGGER.info("Request succed in " + processingTime + " milliseconds");
+    public ResponseEntity<List<UserDto>> getUsers(){
+        List<UserDto> users = userService.getUsers();
 
         return ResponseEntity.ok(users);
     }
@@ -43,22 +42,15 @@ public class UserController {
      * @return User
      */
     @GetMapping("/users/{id}")
-    public ResponseEntity<User> getUser(@PathVariable("id") final Long id) {
-        LOGGER.info("Get user with id " + id);
-        Instant start = Instant.now();
+    public ResponseEntity<UserDto> getUser(@PathVariable("id") final Long id) {
+        UserDto user = userService.getUser(id);
 
-        Optional<User> user = userService.getUser(id);
+//        if (user.isEmpty()){
+//            String errorMessage = "User {"+id+"} not found.";
+//            throw new ResponseStatusException(HttpStatus.NOT_FOUND, errorMessage);
+//        }
 
-        if (user.isEmpty()){
-            String errorMessage = "User {"+id+"} not found.";
-            LOGGER.error("Request failed!\n Status code : " + HttpStatus.NOT_FOUND + "\n message : " + errorMessage);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, errorMessage);
-        }
-
-        long processingTime = Duration.between(start, Instant.now()).toMillis();
-        LOGGER.info("Request succed in " + processingTime + " milliseconds");
-
-        return ResponseEntity.ok(user.get());
+        return ResponseEntity.ok(user);
     }
 
     /**
@@ -67,22 +59,20 @@ public class UserController {
      * @return User
      */
     @PostMapping("/users")
-    public ResponseEntity<User> postUser(@RequestBody User user){
-        LOGGER.info("Register new user");
-        Instant start = Instant.now();
-        int userAge = Period.between(user.getBirthdate(), LocalDate.now()).getYears();
-        if(userAge < 18 || !"FR".equals( user.getCountry()) ){
-            String errorMessage = "The user needs to be major AND french to be registered. \n ";
-            errorMessage += "User age : "+userAge+" y/o \n ";
-            errorMessage += "User country : "+user.getCountry()+" y/o \n";
+    public ResponseEntity<UserDto> postUser(@RequestBody User user) throws Exception {
+//        int userAge = Period.between(user.getBirthdate(), LocalDate.now()).getYears();
+//        if(userAge < 18 || !"FR".equals( user.getCountry()) ){
+//            String errorMessage = "The user needs to be major AND french to be registered. \n ";
+//            errorMessage += "User age : "+userAge+" y/o \n ";
+//            errorMessage += "User country : "+user.getCountry()+" y/o \n";
+//
+//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, errorMessage);
+//        }
 
-            LOGGER.error("Request failed!\n Status code : " + HttpStatus.BAD_REQUEST + "\n message : " + errorMessage);
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, errorMessage);
-        }
+        UserDto savedUser = userService.saveUser(user);
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("location", "users/"+savedUser.getId());
 
-        long processingTime = Duration.between(start, Instant.now()).toMillis();
-        LOGGER.info("Request succed in " + processingTime + " milliseconds");
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(userService.saveUser(user));
+        return ResponseEntity.status(HttpStatus.CREATED).headers(headers).body(savedUser);
     }
 }
